@@ -3,3 +3,13 @@ dist/
 .env
 .env.*
 !.env.example
+
+# Android Studio / IntelliJ user-specific settings
+mobile-app/android/.idea/
+
+# Local Android SDK configuration
+mobile-app/android/local.properties
+
+# Generated build output
+mobile-app/android/.gradle/
+mobile-app/android/**/build/
