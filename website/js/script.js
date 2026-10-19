@@ -64,6 +64,11 @@ const state = {
 	raffleEntries: readStore("hh_raffle_entries", 5),
 	enteredRaffles: readStore("hh_entered_raffles", []),
 	notice: "",
+	// add three lines
+	user: null,
+	authReady: false,
+	guestMode: false,
+	isCreatingAccount: false, // added
 };
 
 function readStore(key, fallback) {
@@ -81,12 +86,26 @@ function esc(value) {
 
 function money(value) { return `R${Number(value).toFixed(2)}`; }
 function imageUrl(id, width = 900, height = 600) { return `https://images.unsplash.com/${id}?w=${width}&h=${height}&fit=crop&auto=format`; }
+//function route() {
+//	if (!location.hash || location.hash === "#" || location.hash === "#/") return signedIn() ? "home" : "login";
+//	return location.hash.replace(/^#\/?/, "").split("?")[0].toLowerCase() || "home";
+//}
 function route() {
-	if (!location.hash || location.hash === "#" || location.hash === "#/") return signedIn() ? "home" : "login";
-	return location.hash.replace(/^#\/?/, "").split("?")[0].toLowerCase() || "home";
+    if (!location.hash || location.hash === "#") return "login";
+    return location.hash.replace(/^#\/?/, "").split("?")[0].toLowerCase() || "home";
 }
-function signedIn() { try { return localStorage.getItem("hh_logged_in") === "true"; } catch { return false; } }
-function userName() { try { return localStorage.getItem("hh_user_name") || "Guest"; } catch { return "Guest"; } }
+
+// function signedIn() { try { return localStorage.getItem("hh_logged_in") === "true"; } catch { return false; } }
+// function userName() { try { return localStorage.getItem("hh_user_name") || "Guest"; } catch { return "Guest"; } }
+
+function signedIn() {
+    return Boolean(state.user);
+}
+
+function userName() {
+    return state.user?.email || "Guest";
+}
+
 
 function link(path, label, icon = "") {
 	const routeName = path === "/" ? "home" : path.replace(/^\//, "");
@@ -113,17 +132,96 @@ function shell(content) {
 	</div>`;
 }
 
+
 function loginPage() {
-	return `<main class="login-page">
-		<section class="login-story"><img class="login-photo" src="${imageUrl("photo-1554118811-1e0d58224f24", 1400, 1800)}" alt="Warm café interior with wooden tables and soft lighting"><div class="login-photo-shade"></div>
-			<div class="login-story-copy"><span class="login-mark">🦛</span><p class="eyebrow">A little comfort, freshly made</p><h1>Happy Hippo<br>Café</h1><p>Where every sip tells a story. Sourced with love, served with soul, right here in South Africa.</p><div class="login-stats"><div><strong>4.9★</strong><span>Customer rating</span></div><div><strong>12k+</strong><span>Happy customers</span></div><div><strong>18+</strong><span>Menu favourites</span></div></div></div><span class="photo-caption">A warm seat is waiting</span>
-		</section>
-		<section class="login-panel"><a class="login-mobile-brand" href="#/login"><span>🦛</span> Happy Hippo Café</a><div class="login-form-wrap"><p class="eyebrow">Your table is ready</p><h2>Welcome back</h2><p class="login-intro">Sign in to order your favourite brew.</p>
-			${state.notice ? `<p class="inline-notice" role="status">${esc(state.notice)}</p>` : ""}
-			<form id="login-form"><label for="email">Email address</label><input id="email" name="email" type="email" placeholder="you@example.com" autocomplete="email" required><label for="password">Password</label><div class="password-field"><input id="password" name="password" type="password" placeholder="Enter your password" autocomplete="current-password" required><button type="button" class="password-toggle" data-action="password" aria-label="Show password" aria-pressed="false">◉</button></div><div class="forgot-row"><button type="button" class="text-action" data-action="forgot">Forgot password?</button></div><button class="primary-button login-submit" type="submit">Sign in</button></form>
-			<div class="or-divider"><span>or continue as</span></div><button class="secondary-button guest-button" data-action="guest">☕ <span>Guest Explorer</span></button><p class="create-account">No account? <button class="text-action" data-action="create-account">Create one free</button></p><p class="demo-caption">Demo interface only. No password is sent to a server.</p>
-		</div><footer class="login-footer">© 2026 Happy Hippo Café</footer></section>
-	</main>`;
+    return `<main class="login-page">
+        <section class="login-story">
+            <img class="login-photo" src="${imageUrl("photo-1554118811-1e0d58224f24", 1400, 1800)}" alt="Warm café interior with wooden tables and soft lighting">
+            <div class="login-photo-shade"></div>
+            <div class="login-story-copy">
+                <span class="login-mark">🦛</span>
+                <p class="eyebrow">A little comfort, freshly made</p>
+                <h1>Happy Hippo<br>Café</h1>
+                <p>Where every sip tells a story. Sourced with love, served with soul, right here in South Africa.</p>
+                <div class="login-stats">
+                    <div><strong>4.9★</strong><span>Customer rating</span></div>
+                    <div><strong>12k+</strong><span>Happy customers</span></div>
+                    <div><strong>18+</strong><span>Menu favourites</span></div>
+                </div>
+            </div>
+            <span class="photo-caption">A warm seat is waiting</span>
+        </section>
+
+        <section class="login-panel">
+            <a class="login-mobile-brand" href="#/login">
+                <span>🦛</span> Happy Hippo Café
+            </a>
+
+            <div class="login-form-wrap">
+                <p class="eyebrow">Your table is ready</p>
+                <h2>${state.isCreatingAccount ? "Create your account" : "Welcome back"}</h2>
+                <p class="login-intro">
+                    ${state.isCreatingAccount
+                        ? "Join us for your favourite brew."
+                        : "Sign in to order your favourite brew."}
+                </p>
+
+                ${state.notice ? `<p class="inline-notice" role="status">${esc(state.notice)}</p>` : ""}
+
+                <form id="login-form">
+                    <label for="email">Email address</label>
+                    <input id="email" name="email" type="email"
+                        placeholder="you@example.com"
+                        autocomplete="email" required>
+
+                    <label for="password">Password</label>
+                    <div class="password-field">
+                        <input id="password" name="password" type="password"
+                            placeholder="Enter your password"
+                            autocomplete="${state.isCreatingAccount ? "new-password" : "current-password"}"
+                            required>
+                        <button type="button" class="password-toggle"
+                            data-action="password"
+                            aria-label="Show password"
+                            aria-pressed="false">◉</button>
+                    </div>
+
+                    ${!state.isCreatingAccount ? `
+                        <div class="forgot-row">
+                            <button type="button" class="text-action" data-action="forgot">
+                                Forgot password?
+                            </button>
+                        </div>
+                    ` : ""}
+
+                    <button class="primary-button login-submit" type="submit">
+                        ${state.isCreatingAccount ? "Create Account" : "Sign In"}
+                    </button>
+                </form>
+
+                <div class="or-divider"><span>or continue as</span></div>
+
+                <button class="secondary-button guest-button" data-action="guest">
+                    ☕ <span>Guest Explorer</span>
+                </button>
+
+                <p class="create-account">
+                    ${state.isCreatingAccount
+                        ? "Already have an account?"
+                        : "No account?"}
+                    <button class="text-action" data-action="create-account">
+                        ${state.isCreatingAccount ? "Sign in" : "Create one free"}
+                    </button>
+                </p>
+
+                <p class="demo-caption">
+                    Account authentication is handled by Supabase.
+                </p>
+            </div>
+
+            <footer class="login-footer">© 2026 Happy Hippo Café</footer>
+        </section>
+    </main>`;
 }
 
 function productCard(item, compact = false) {
@@ -211,17 +309,67 @@ function articleDialog() {
 	return `<div class="modal-backdrop" data-action="close-article"><article class="article-modal" role="dialog" aria-modal="true" aria-labelledby="article-title"><button class="modal-close" data-action="close-article" aria-label="Close story">×</button><img src="${imageUrl(post.image, 1200, 700)}" alt="${esc(post.title)}"><div><p class="category-label">${esc(post.category)} · ${esc(post.date)}</p><h2 id="article-title">${esc(post.title)}</h2><p class="article-byline">By ${esc(post.author)}</p><p>${esc(post.excerpt)} ${esc(post.excerpt)} At Happy Hippo Café, every detail is considered: from thoughtfully sourced coffee to the people and places that make each cup special. We believe a good café is built around community, craft, and a warm welcome.</p></div></article></div>`;
 }
 
+//function render() {
+//	let current = route();
+//	if (current === "" || current === "index.html") current = "login";
+//	if (current === "login" && signedIn()) { location.hash = "#/"; return; }
+//	if (current !== "login" && !signedIn()) { location.hash = "#/login"; return; }
+//	const pages = { "": homePage, menu: menuPage, blog: blogPage, raffle: rafflePage, admin: adminPage, help: helpPage };
+//	if (current === "login") app.innerHTML = loginPage();
+//	else app.innerHTML = shell((pages[current] || homePage)());
+//	const titles = { login: "Sign in", "": "Home", menu: "Menu", blog: "Blog", raffle: "Raffles", admin: "Admin", help: "Help" };
+//	document.title = `${titles[current] || "Home"} | Happy Hippo Café`;
+//}
+
 function render() {
-	let current = route();
-	if (current === "" || current === "index.html") current = "login";
-	if (current === "login" && signedIn()) { location.hash = "#/"; return; }
-	if (current !== "login" && !signedIn()) { location.hash = "#/login"; return; }
-	const pages = { "": homePage, menu: menuPage, blog: blogPage, raffle: rafflePage, admin: adminPage, help: helpPage };
-	if (current === "login") app.innerHTML = loginPage();
-	else app.innerHTML = shell((pages[current] || homePage)());
-	const titles = { login: "Sign in", "": "Home", menu: "Menu", blog: "Blog", raffle: "Raffles", admin: "Admin", help: "Help" };
-	document.title = `${titles[current] || "Home"} | Happy Hippo Café`;
+    if (!state.authReady) {
+        app.innerHTML = "<main>Loading...</main>";
+        return;
+    }
+
+    let current = route();
+
+    if (current === "index.html") current = "login";
+
+    if (current === "login" && (signedIn() || state.guestMode)) {
+        location.hash = "#/";
+        return;
+    }
+
+    if (current !== "login" && !signedIn() && !state.guestMode) {
+        location.hash = "#/login";
+        return;
+    }
+
+    const pages = {
+        "": homePage,
+        home: homePage,
+        menu: menuPage,
+        blog: blogPage,
+        raffle: rafflePage,
+        admin: adminPage,
+        help: helpPage
+    };
+
+    if (current === "login") {
+        app.innerHTML = loginPage();
+    } else {
+        app.innerHTML = shell((pages[current] || homePage)());
+    }
+
+    const titles = {
+        login: "Sign in",
+        home: "Home",
+        menu: "Menu",
+        blog: "Blog",
+        raffle: "Raffles",
+        admin: "Admin",
+        help: "Help"
+    };
+
+    document.title = `${titles[current] || "Home"} | Happy Hippo Café`;
 }
+
 
 function toast(message) {
 	state.notice = message;
@@ -230,11 +378,65 @@ function toast(message) {
 	toast.timeout = window.setTimeout(() => { state.notice = ""; render(); }, 2800);
 }
 
-function signIn(name) {
-	try { localStorage.setItem("hh_logged_in", "true"); localStorage.setItem("hh_user_name", name); } catch { /* Keep navigation usable when storage is unavailable. */ }
-	state.notice = "";
-	location.hash = "#/";
+// Below is sign in to local storage. 
+// function signIn(name) {
+//	try { localStorage.setItem("hh_logged_in", "true"); localStorage.setItem("hh_user_name", name); } catch { /* Keep navigation usable when storage is unavailable. */ }
+//	state.notice = "";
+//	location.hash = "#/";
+// }
+
+async function signIn(email, password) {
+    const { data, error } = await window.hhSupabase.auth.signInWithPassword({
+        email: email,
+        password: password
+    });
+
+    if (error) {
+        state.notice = error.message;
+        render();
+        return;
+    }
+
+    state.notice = "";
+    location.hash = "#/";
 }
+
+
+async function createAccount() {
+    const email = app.querySelector("#email")?.value.trim() || "";
+    const password = app.querySelector("#password")?.value || "";
+
+    if (!email || !password) {
+        state.notice = "Enter your email and password to create an account.";
+        render();
+        return;
+    }
+
+    try {
+        const { data, error } = await window.hhSupabase.auth.signUp({
+            email,
+            password
+        });
+
+        if (error) {
+            state.notice = error.message;
+            render();
+            return;
+        }
+
+        if (data.session) {
+            state.notice = "";
+            location.hash = "#/";
+        } else {
+            state.notice = "Account created. Check your email to confirm your account before signing in.";
+            render();
+        }
+    } catch (error) {
+        state.notice = error.message || "Unable to create your account.";
+        render();
+    }
+}
+
 
 app.addEventListener("submit", (event) => {
 	if (event.target.id !== "login-form") return;
@@ -242,8 +444,19 @@ app.addEventListener("submit", (event) => {
 	const data = new FormData(event.target);
 	const email = String(data.get("email") || "").trim();
 	const password = String(data.get("password") || "");
-	if (!email || !password) { toast("Enter your email and password to continue."); return; }
-	signIn(email.split("@")[0] || "Guest");
+	if (!email || !password) { 
+		//toast("Enter your email and password to continue."); return; 
+		state.notice = "Enter your email and password to continue.";
+        render();
+        return;
+	}
+	// changeed to below - signIn(email.split("@")[0] || "Guest");
+	// signIn(email, password);
+	if (state.isCreatingAccount) {
+        createAccount();
+    } else {
+        signIn(email, password);
+    }
 });
 
 app.addEventListener("input", (event) => {
@@ -260,11 +473,41 @@ app.addEventListener("click", (event) => {
 	const target = event.target.closest("[data-action]");
 	if (!target) return;
 	const { action, id } = target.dataset;
-	if (action === "guest") signIn("Guest");
-	else if (action === "signout") { try { localStorage.removeItem("hh_logged_in"); localStorage.removeItem("hh_user_name"); } catch { /* No-op */ } state.cartOpen = false; location.hash = "#/login"; }
+	// changed - if (action === "guest") signIn("Guest");
+	
+	if (action === "guest") {
+		state.guestMode = true;
+		state.user = null;
+		state.notice = "";
+		location.hash = "#/";
+	}
+	// changed to below- else if (action === "signout") { try { localStorage.removeItem("hh_logged_in"); localStorage.removeItem("hh_user_name"); } catch { /* No-op */ } state.cartOpen = false; location.hash = "#/login"; }
+
+	else if (action === "signout") {
+    state.guestMode = false;
+
+    window.hhSupabase.auth.signOut().then(({ error }) => {
+        if (error) {
+            state.notice = error.message;
+            render();
+            return;
+        }
+
+        state.user = null;
+        state.cartOpen = false;
+        location.hash = "#/login";
+        render();
+    });
+}
 	else if (action === "password") { const input = app.querySelector("#password"); const visible = input.type === "password"; input.type = visible ? "text" : "password"; target.setAttribute("aria-pressed", String(visible)); target.setAttribute("aria-label", visible ? "Hide password" : "Show password"); }
 	else if (action === "forgot") toast("Password recovery will be available when account services are connected.");
-	else if (action === "create-account") toast("Account creation will be available when account services are connected.");
+	//else if (action === "create-account") createAccount();
+	else if (action === "create-account") {
+    state.isCreatingAccount = !state.isCreatingAccount;
+    state.notice = "Enter your email and password to create an account.";
+    render();
+}
+	// Replacing with above - else if (action === "create-account") toast("Account creation will be available when account services are connected.");
 	else if (action === "cart-open") { state.cartOpen = true; render(); }
 	else if (action === "cart-close") {
 		const destination = target.tagName === "A" ? target.getAttribute("href") : "";
@@ -289,5 +532,32 @@ app.addEventListener("click", (event) => {
 });
 
 window.addEventListener("hashchange", () => { state.mobileNav = false; state.cartOpen = false; state.articleId = null; render(); window.scrollTo(0, 0); });
-if (!location.hash) location.hash = signedIn() ? "#/" : "#/login";
-render();
+//if (!location.hash) location.hash = signedIn() ? "#/" : "#/login";
+//render();
+
+
+if (!location.hash) location.hash = "#/login";
+
+window.hhSupabase.auth.onAuthStateChange((_event, session) => {
+    state.user = session?.user || null;
+    state.authReady = true;
+    render();
+});
+
+window.hhSupabase.auth.getSession().then(({ data, error }) => {
+    if (error) {
+        state.authReady = true;
+        state.notice = error.message;
+        render();
+        return;
+    }
+
+    state.user = data.session?.user || null;
+    state.authReady = true;
+    render();
+}).catch((error) => {
+    state.authReady = true;
+    state.notice = error.message || "Unable to connect to authentication.";
+    render();
+});
+
