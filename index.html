@@ -1,84 +1,24 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Happy Hippo - Home</title>
+    <meta name="theme-color" content="#fbf5ed">
+    <meta name="description" content="Happy Hippo Café: coffee, pastries, stories, and a warm welcome in Stellenbosch.">
+    <title>Happy Hippo Café</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="website/css/style.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="website/js/supabase-client.js" defer></script>
+    <script src="website/js/script.js" defer></script>
 </head>
-
 <body>
-
-    <header>
-        <div class="logo">
-            <img src="website/images/logo.png" alt="Cafe Logo">
-        </div>
-        <nav>
-            <ul>
-                <li><a href="index.html">Home</a></li>
-                <li><a href="website/pages/about.html">About</a></li>
-                <li><a href="website/pages/services.html">Services</a></li>
-                <li><a href="website/pages/search.html">Search</a></li>
-                <li><a href="website/pages/account.html">Account</a></li>
-                <li><a href="website/pages/help.html">Help</a></li>
-            </ul>
-        </nav>
-    </header>
-
-    <main>
-        <section class="hero">
-            <img src="website/images/hero-banner.jpg" alt="Freshly brewed coffee and pastries on a wooden cafe table">
-            <h1>Fresh Coffee & Daily Baked Goods</h1>
-            <p>Welcome to Happy Hippo. We source ethical, locally roasted beans and serve fresh pastries crafted daily by our team.</p>
-            <div class="hero-buttons">
-                <a href="website/pages/services.html" class="btn primary">View Menu</a>
-                <a href="website/pages/account.html" class="btn secondary">Order Online</a>
-            </div>
-        </section>
-
-        <!-- Quick Access Section -->
-        <section class="quick-access">
-            <h2>Quick Access</h2>
-            <div class="card-grid">
-                <article class="card">
-                    <img src="website/images/menu-icon.png" alt="Coffee cup icon representing daily specials">
-                    <h3>Daily Specials</h3>
-                    <p>Check today's discounted meals and artisanal drinks.</p>
-                </article>
-
-                <article class="card">
-                    <img src="website/images/order-icon.png" alt="Shopping bag icon representing pre-ordering">
-                    <h3>Pre-Order Pickup</h3>
-                    <p>Skip the queue by scheduling your order ahead of time.</p>
-                </article>
-
-                <article class="card">
-                    <img src="website/images/reward-icon.png" alt="Star icon representing student loyalty rewards">
-                    <h3>Student Rewards</h3>
-                    <p>Earn points on every meal to redeem free drinks.</p>
-                </article>
-            </div>
-        </section>
-
-        <!-- Announcements Section -->
-        <section class="announcements">
-            <h2>Announcements</h2>
-            <div class="announcement-item">
-                <img src="website/images/news-1.jpg" alt="Barista preparing cold brew coffee">
-                <div class="announcement-text">
-                    <h3>New Seasonal Spring Menu Launched</h3>
-                    <p>Try our cold brew specials and vegan pastry options starting this week.</p>
-                </div>
-            </div>
-
-        </section>
-    </main>
-
-    <footer>
-        <p>&copy; 2026 Happy Hippo Project. All rights reserved</p>
-    </footer>
-
-    <script src="website/js/script.js"></script>
-
+    <div id="app"></div>
 </body>
 </html>
