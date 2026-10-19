@@ -15,21 +15,24 @@ This repository contains the source code and documentation for the XISD6329 web 
 - **JavaScript:** Client-side scripting and interactive elements.
 - **Git & GitHub:** Version control and collaboration.
 
-## Run the web app
+## App entry points
 
-Open `index.html` in a browser. No Node.js, npm, build step, or server is required. Public browsing works without an account. Use **Continue as Guest** to browse, or register/sign in with email or choose the simulated Google flow. Customer navigation includes Home, Browse, Blog, Raffle, Help, Orders, and Account settings.
+`mobile-app/web` is the UI bundle used by Capacitor (`mobile-app/capacitor.config.ts` sets `webDir: 'web'`). Open `mobile-app/web/index.html` to preview that same UI in a browser. Root `index.html` is a separate standalone web preview; root `src/` is a separate React implementation and is not used by Capacitor.
 
-Checkout requires a customer session. A guest cart is preserved while signing in; placing an order creates a clearly labelled local demo order and does not contact the café or process payment. The Account settings screen includes appearance, notification preferences, name editing, security placeholders, legal placeholders, and support actions.
+Run the native packaging sync from `mobile-app` after installing its dependencies with `npx cap sync android`; Android Studio is required to build/run the native app. The Capacitor bundle loads Supabase JS and initializes the client in `mobile-app/web/website/js/supabase-client.js`.
 
-For the local prototype Admin sign-in, use `Admin@email.com` / `Password123`. The credentials are declared once in `website/js/script.js` as `PROTOTYPE_ADMIN`; change them there for local testing. Admin routes and actions require a separate in-memory admin session, and Admin is not shown in customer navigation.
+## Authentication and data
 
-Cart, appearance, notification preferences, and the customer's name are stored locally. Mock email accounts and their password checks exist only in memory for the current page session; the signed-in customer ID and authentication method use session storage. Google sign-in, password changes, support reports, admin analytics, notifications, checkout, and orders are simulations, not connected services.
+Email registration/sign-in, session restoration, sign-out, password recovery, and Google OAuth now use Supabase Auth in the Capacitor bundle. Google OAuth must be enabled in Supabase and its redirect origins configured for local development, hosted web, and Capacitor. The customer's name is stored as Supabase Auth `user_metadata.name`; email remains part of the Auth identity, not a separate customer profile. The UI derives admin access from the server-issued `app_metadata.role === 'admin'` claim. Assign that role only from a trusted server/admin process, never from client-editable user metadata.
 
-**Security:** the admin credentials and authorization are client-side prototype controls and can be discovered or bypassed by someone controlling the browser.Must be replaced  with environment-managed credentials, server-validated roles, and a real authentication provider before any  public deployment. Real Google OAuth, email delivery, password reset, payments, order processing, and push/email notifications are not configured.
+The settings and circular theme transition are local UI preferences. Cart, raffle entries, notification preferences, prototype orders, and menu availability remain browser-local demo data. Checkout does not submit a real order or payment. No SQL migrations or database schema were changed by the UI integration. Before persisting orders or other business data, agree on the schema and enforce access through Supabase RLS and trusted server-side operations. Admin route hiding is only a UI control; database security must be enforced by RLS.
+
+**Security:** the Supabase publishable/anon key is intended for client use only when RLS is correctly configured. Never put a service-role key or administrator password in the web bundle. Database access must deny unauthorized users even if they bypass the interface.
 
 ## Frontend files
 
-- `index.html`: Vanilla app entry point.
-- `website/css/style.css`: Shared layout and responsive styling.
-- `website/js/script.js`: Screen templates, hash navigation, demo data, and interactions.
-- `src/`: Original React/Figma export retained as reference; it is not loaded by the vanilla app.
+- `mobile-app/web/index.html`: Capacitor UI entry point.
+- `mobile-app/web/website/js/script.js`: Capacitor customer UI, theme, settings, and auth integration.
+- `mobile-app/web/website/js/supabase-client.js`: Supabase client initialization using the publishable key.
+- Root `index.html` and `website/`: Separate browser preview; keep its changes synchronized intentionally if it remains in use.
+- `src/`: Separate React implementation, not wired to the Capacitor web bundle.
