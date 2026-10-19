@@ -10,6 +10,9 @@ This repository contains the source code and documentation for the XISD6329 web 
 - `/website`: Website component including CSS, JavaScript, media, and secondary pages.
 - `index.html`: Main landing page for the web application.
 
+## Youtube Video of Application
+https://youtu.be/Wfi2iJAvAio
+
 ## Technologies Used
 - **HTML5 & CSS3:** Semantic markup and responsive layout styling.
 - **JavaScript:** Client-side scripting and interactive elements.
