@@ -17,9 +17,15 @@ This repository contains the source code and documentation for the XISD6329 web 
 
 ## Run the web app
 
-Open `index.html` in a browser. No Node.js, npm, build step, or server is required. Sign in with any valid-looking email and a password, or choose **Guest Explorer**; either takes you to Home. Navigate through Home, Menu, Blog, Raffle, Admin, and Help. The app uses hash routes, so the screens work from a local file.
+Open `index.html` in a browser. No Node.js, npm, build step, or server is required. Public browsing works without an account. Use **Continue as Guest** to browse, or register/sign in with email or choose the simulated Google flow. Customer navigation includes Home, Browse, Blog, Raffle, Help, Orders, and Account settings.
 
-Menu search and filters, the cart, raffle entry demo, blog filters, admin tabs, and FAQ accordions run in the browser. Demo login, cart, and raffle state use local storage. Authentication, checkout, and admin data are not connected to a backend.
+Checkout requires a customer session. A guest cart is preserved while signing in; placing an order creates a clearly labelled local demo order and does not contact the café or process payment. The Account settings screen includes appearance, notification preferences, name editing, security placeholders, legal placeholders, and support actions.
+
+For the local prototype Admin sign-in, use `Admin@email.com` / `Password123`. The credentials are declared once in `website/js/script.js` as `PROTOTYPE_ADMIN`; change them there for local testing. Admin routes and actions require a separate in-memory admin session, and Admin is not shown in customer navigation.
+
+Cart, appearance, notification preferences, and the customer's name are stored locally. Mock email accounts and their password checks exist only in memory for the current page session; the signed-in customer ID and authentication method use session storage. Google sign-in, password changes, support reports, admin analytics, notifications, checkout, and orders are simulations, not connected services.
+
+**Security:** the admin credentials and authorization are client-side prototype controls and can be discovered or bypassed by someone controlling the browser.Must be replaced  with environment-managed credentials, server-validated roles, and a real authentication provider before any  public deployment. Real Google OAuth, email delivery, password reset, payments, order processing, and push/email notifications are not configured.
 
 ## Frontend files
 
