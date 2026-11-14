@@ -11,30 +11,51 @@ export default function Login() {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setNotice("");
-    if (!email || !password) {
-      setError("Please fill in all fields.");
+  const handleLogin = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setError("");
+  setNotice("");
+
+  if (!email || !password) {
+    setError("Please fill in all fields.");
+    return;
+  }
+
+  const supabase = (window as any).hhSupabase;
+
+  if (!supabase) {
+    setError("Authentication service is unavailable. Please try again.");
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    });
+
+    if (error) {
+      setError(error.message);
       return;
     }
-    setLoading(true);
-    setTimeout(() => {
-      localStorage.setItem("hh_logged_in", "true");
-      localStorage.setItem("hh_user_name", email.split("@")[0]);
-      navigate("/");
-    }, 900);
-  };
 
-  const handleGuest = () => {
-    setLoading(true);
-    setTimeout(() => {
-      localStorage.setItem("hh_logged_in", "true");
-      localStorage.setItem("hh_user_name", "Guest");
-      navigate("/");
-    }, 600);
-  };
+    if (!data.session || !data.user) {
+      setError("Sign-in failed. Please try again.");
+      return;
+    }
+
+    navigate("/");
+  } catch (err) {
+    setError("Unable to sign in. Please try again.");
+    console.error("Login error:", err);
+  } finally {
+    setLoading(false);
+  }
+};
+
+  
 
   return (
     <div className="min-h-screen flex">
@@ -161,32 +182,7 @@ export default function Login() {
             >
               {loading ? "Signing in…" : "Sign In"}
             </button>
-          </form>
-
-          <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-[rgba(124,61,18,0.15)]" />
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="bg-[#FBF5ED] px-3 text-[#7A5C3E]">or continue as</span>
-            </div>
-          </div>
-
-          <button
-            onClick={handleGuest}
-            disabled={loading}
-            className="w-full flex items-center justify-center gap-2 border-2 border-[rgba(124,61,18,0.2)] bg-white hover:bg-[#F2E2C4] text-[#4A1E08] py-3.5 rounded-xl font-bold text-base transition disabled:opacity-60"
-          >
-            <Coffee className="w-5 h-5 text-[#C8591A]" />
-            Guest Explorer
-          </button>
-
-          <p className="text-center text-sm text-[#7A5C3E] mt-6">
-            No account?{" "}
-            <button type="button" onClick={() => setNotice("Account creation will be available when account services are connected.")} className="text-[#C8591A] font-bold hover:text-[#7C3D12] transition">
-              Create one free
-            </button>
-          </p>
+          </form>  
         </div>
       </div>
     </div>
