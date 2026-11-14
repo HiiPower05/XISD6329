@@ -13,23 +13,44 @@ This repository contains the source code and documentation for the XISD6329 web 
 ## Youtube Video of Application
 https://youtu.be/Wfi2iJAvAio
 
+
 ## Technologies Used
-- **HTML5 & CSS3:** Semantic markup and responsive layout styling.
-- **JavaScript:** Client-side scripting and interactive elements.
+- **HTML5 & CSS3:** Website structure, responsive layout, and styling.
+- **JavaScript:** Website navigation, user interactions, and application logic.
+- **Supabase:** Backend services, including user authentication and database operations.
+- **React & Vite:** Separate frontend implementation retained in the `src` directory.
+- **Capacitor:** Mobile application integration.
 - **Git & GitHub:** Version control and collaboration.
 
 ## Run the web app
 
-Open `index.html` in a browser. No Node.js, npm, build step, or server is required. Sign in with any valid-looking email and a password, or choose **Guest Explorer**; either takes you to Home. Navigate through Home, Menu, Blog, Raffle, Admin, and Help. The app uses hash routes, so the screens work from a local file.
+The primary web application is the vanilla JavaScript website.
 
-Menu search and filters, the cart, raffle entry demo, blog filters, admin tabs, and FAQ accordions run in the browser. Demo login, cart, and raffle state use local storage. Authentication, checkout, and admin data are not connected to a backend.
+1. Clone the repository.
+2. Install the project dependencies using `npm install`.
+3. Start the development server using `npm run dev`.
+4. Open the local URL displayed by Vite.
+
+The website uses hash-based navigation and supports the Home, Menu, Blog, Raffle, Admin, and Help sections.
+
+Supabase provides the authentication backend. Users can register, sign in with an email and password, and sign out. Authentication session changes are handled through Supabase's authentication state listener.
+
+The website also includes menu browsing, search and filters, a shopping cart, and order-related functionality. Database operations and checkout functionality depend on the configured Supabase project and its database functions.
 
 ## Frontend files
 
-- `index.html`: Vanilla app entry point.
-- `website/css/style.css`: Shared layout and responsive styling.
-- `website/js/script.js`: Screen templates, hash navigation, demo data, and interactions.
-- `src/`: Original React/Figma export retained as reference; it is not loaded by the vanilla app.
+### Primary website
+- `index.html`: Main website entry point.
+- `website/css/style.css`: Website layout and responsive styling.
+- `website/js/script.js`: Screen rendering, navigation, interactions, authentication, and order-related logic.
+- `website/js/supabase-client.js`: Supabase client initialization.
+
+### Additional frontend implementation
+- `src/`: Separate React implementation retained in the repository. It is not loaded by the root `index.html` and is not the primary website entry point.
+
+### Mobile application
+- `mobile-app/`: Cross-platform mobile application source code and Capacitor configuration.
+
 
 ## Images
 
