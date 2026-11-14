@@ -1,23 +1,10 @@
+
 async function checkoutGuest() {
     if (!state.cart.length) {
         toast("Your cart is empty.");
         return;
     }
-
-    const email = window.prompt("Enter your email to place your order:");
-
-    if (email === null) return;
-
-    const customerEmail = email.trim();
-
-    if (
-        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail) ||
-        customerEmail.length > 254
-    ) {
-        toast("Please enter a valid email address.");
-        return;
-    }
-
+    
     const items = state.cart.map((item) => ({
         menu_item_id: Number(item.id),
         quantity: Number(item.quantity)
@@ -32,6 +19,7 @@ async function checkoutGuest() {
         toast("Your cart contains an invalid item. Please refresh and try again.");
         return;
     }
+    const customerEmail = state.user?.email || null;
 
     try {
         const { data, error } = await window.hhSupabase.rpc(
@@ -58,6 +46,8 @@ async function checkoutGuest() {
 
         // Clear the cart only after the database confirms success.
         state.cart = [];
+        // clear from local storage.
+        saveStore("hh_cart", state.cart);
         render();
 
         toast(
@@ -143,6 +133,13 @@ const state = {
     // SO no one can access admin
     isAdmin: false,
     adminRoleReady: false,
+    settings: readStore("hh_settings", {
+    darkMode: false,
+    largeText: false,
+    cafeAnnouncements: true,
+    blogUpdates: true,
+    raffleUpdates: true
+}),
 };
 
 function readStore(key, fallback) {
@@ -250,7 +247,9 @@ function shell(content) {
     ["/blog", "Blog", "▤"],
     ["/raffle", "Raffle", "✧"],
     ...(state.isAdmin ? [["/admin", "Admin", "▦"]] : []),
-    ["/help", "Help", "?"]
+    ["/help", "Help", "?"],
+    ["/settings", "Settings", "⚙"]
+
 ];
 	return `<div class="site-shell">
 		<header class="site-header"><div class="header-inner">
@@ -362,7 +361,13 @@ function loginPage() {
 
 function productCard(item, compact = false) {
 	const inCart = state.cart.find((cartItem) => cartItem.id === item.id)?.quantity || 0;
-	return `<article class="product-card${compact ? " compact" : ""}"><div class="product-visual"><span>${item.image}</span>${inCart ? `<small class="product-quantity">${inCart} in cart</small>` : ""}</div><div class="product-info"><p class="category-label">${esc(item.category)}</p><h3>${esc(item.name)}</h3><p class="product-description">${esc(item.description)}</p><div class="product-bottom"><strong>${money(item.price)}</strong><button class="small-primary" data-action="add-cart" data-id="${item.id}">Add to cart</button></div></div></article>`;
+	return `<article class="product-card${compact ? " compact" : ""}"><div class="product-visual">
+    <span>
+    ${typeof item.image === "string" && /^https?:\/\//i.test(item.image)
+        ? `<img src="${esc(item.image)}" alt="${esc(item.name)}" loading="lazy">`
+        : esc(item.image || "☕")}
+    </span> 
+    ${inCart ? `<small class="product-quantity">${inCart} in cart</small>` : ""}</div><div class="product-info"><p class="category-label">${esc(item.category)}</p><h3>${esc(item.name)}</h3><p class="product-description">${esc(item.description)}</p><div class="product-bottom"><strong>${money(item.price)}</strong><button class="small-primary" data-action="add-cart" data-id="${item.id}">Add to cart</button></div></div></article>`;
 }
 
 function homePage() {
@@ -374,13 +379,6 @@ function homePage() {
 		<section class="content-section"><div class="section-heading"><div><p class="eyebrow">Made fresh every day</p><h2>Fan favourites</h2></div><a href="#/menu" class="inline-link">Full menu →</a></div><div class="product-grid home-products">${featured.map((item) => productCard(item, true)).join("")}</div></section>
 		<section class="content-section blog-preview"><div class="section-heading"><div><p class="eyebrow">Stories from behind the counter</p><h2>From the blog</h2></div><a href="#/blog" class="inline-link">All posts →</a></div><div class="blog-grid">${previews.map(postCard).join("")}</div></section>`;
 }
-
-//function menuPage() {
-//	const categories = ["All", "Coffee", "Pastries", "Snacks", "Beverages"];
-//	const query = state.menuSearch.toLowerCase();
-//	const filtered = products.filter((item) => (state.category === "All" || item.category === state.category) && `${item.name} ${item.description}`.toLowerCase().includes(query));
-//	return `<section class="page-container"><div class="page-heading"><p class="eyebrow">Happy Hippo Café</p><h1>Our menu</h1><p>${filtered.length} items · All prices in ZAR incl. VAT</p></div><div class="menu-tools"><label class="search-field"><span>⌕</span><input name="menu-search" type="search" value="${esc(state.menuSearch)}" placeholder="Search items..." aria-label="Search menu"></label><span class="results-count">${filtered.length} results</span></div><div class="filter-row">${categories.map((name) => `<button class="filter-chip${state.category === name ? " selected" : ""}" data-action="menu-category" data-category="${name}">${name}</button>`).join("")}</div>${filtered.length ? `<div class="product-grid">${filtered.map((item) => productCard(item)).join("")}</div>` : `<div class="empty-state"><span>⌕</span><h2>Nothing found</h2><p>Try a different keyword or category.</p></div>`}</section>`;
-//}
 
 function menuPage() {
     const categories = ["All", "Coffee", "Pastries", "Snacks", "Beverages"];
@@ -510,11 +508,12 @@ async function loadOrders() {
 
             return {
                 id: order.id,
-                customer: order.customer_email,
+                customer: order.customer_email || "Guest",
                 items: itemNames.join(", ") || "No items",
                 total: Number(order.total_amount),
                 status: order.status,
-                time: new Date(order.created_at).toLocaleString()
+                time: new Date(order.created_at).toLocaleString(),
+                createdAt: order.created_at
             };
         });
     } catch (error) {
@@ -617,6 +616,12 @@ async function loadWebsiteContent() {
 
         cafeSettings = settings;
     }
+    if (hoursResult.error) {
+                console.error("Café hours loading failed:", hoursResult.error);
+            } else {
+                cafeHours = hoursResult.data || [];
+            }
+
 }
 
 function postCard(post) {
@@ -649,7 +654,79 @@ function countdown(endDate) {
 function rafflePage() {
 	return `<section class="page-container"><div class="page-heading centered"><p class="eyebrow">A little extra excitement</p><h1>Raffle &amp; prizes</h1><p>Earn tickets with every purchase and enter to win. Good luck!</p></div><section class="ticket-banner"><div><p>Your ticket balance</p><strong>🎟️ ${state.raffleEntries} <small>tickets</small></strong></div><div class="ticket-earn"><b>Earn more tickets</b><span>🛒 1 ticket per R100 spent</span><span>👥 5 tickets for a referral</span><span>📅 1 ticket per daily check-in</span></div></section><section class="how-it-works"><h2>✧ How it works</h2><div class="steps"><div><b>1</b><span><strong>Earn entries</strong><small>Get tickets through purchases, referrals, and check-ins.</small></span></div><div><b>2</b><span><strong>Enter raffles</strong><small>Use tickets to enter any active raffle.</small></span></div><div><b>3</b><span><strong>Win prizes</strong><small>Winners are drawn when each raffle ends.</small></span></div></div></section><h2 class="subheading">Active raffles</h2><div class="raffle-grid">${raffles.map((item) => { const entered = state.enteredRaffles.includes(item.id); const canEnter = state.raffleEntries >= item.tickets; return `<article class="raffle-card"><div class="raffle-art" style="--raffle-color:${item.color}"><span>${item.image}</span><b>Active</b></div><div class="raffle-info"><h3>${esc(item.title)}</h3><p>${esc(item.description)}</p><div class="prize-detail"><small>PRIZE</small><strong>${esc(item.prize)}</strong><span>Value ${money(item.value)}</span></div><div class="countdown-row"><small>TIME LEFT</small><strong>${countdown(item.ends)}</strong></div><p class="entry-cost">Costs <b>${item.tickets} ${item.tickets === 1 ? "ticket" : "tickets"}</b> to enter.</p>${entered ? `<div class="entered-state">✓ Entered — good luck!</div>` : `<button class="primary-button full-width" data-action="enter-raffle" data-id="${item.id}" ${canEnter ? "" : "disabled"}>${canEnter ? "Enter raffle" : `Need ${item.tickets - state.raffleEntries} more ticket${item.tickets - state.raffleEntries === 1 ? "" : "s"}`}</button>`}</div></article>`; }).join("")}</div><p class="demo-caption centered">Raffle entries are sample UI data and do not submit to a live draw.</p></section>`;
 }
+function settingsPage() {
+    const settingRow = (key, title, description) => `
+        <div class="settings-row">
+            <div class="settings-info">
+                <strong>${title}</strong>
+                <p>${description}</p>
+            </div>
+            <button
+                class="settings-toggle"
+                data-action="toggle-setting"
+                data-setting="${key}"
+                aria-pressed="${state.settings[key]}"
+                type="button"
+            >
+                ${state.settings[key] ? "On" : "Off"}
+            </button>
+        </div>
+    `;
 
+    return `
+        <section class="page-container settings-page">
+            <div class="page-heading">
+                <p class="eyebrow">YOUR EXPERIENCE</p>
+                <h1>Settings</h1>
+                <p>Personalise your Happy Hippo Café experience.</p>
+            </div>
+
+            <section class="settings-card">
+                <h2>Appearance & Accessibility</h2>
+
+                ${settingRow(
+                    "darkMode",
+                    "Dark mode",
+                    "Use a darker colour scheme across the website."
+                )}
+
+                ${settingRow(
+                    "largeText",
+                    "Larger text",
+                    "Increase text size for easier reading."
+                )}
+            </section>
+
+            <section class="settings-card">
+                <h2>Notifications</h2>
+
+                ${settingRow(
+                    "cafeAnnouncements",
+                    "Café announcements",
+                    "Receive updates about the café."
+                )}
+
+                ${settingRow(
+                    "blogUpdates",
+                    "Blog updates",
+                    "Stay informed when new stories are published."
+                )}
+
+                ${settingRow(
+                    "raffleUpdates",
+                    "Raffle announcements",
+                    "Receive updates about café raffles."
+                )}
+            </section>
+
+            <section class="settings-card">
+                <h2>About Happy Hippo Café</h2>
+                <p>Coffee, pastries, stories, and a warm welcome in Stellenbosch.</p>
+                <p>All prices are displayed in South African Rand (ZAR).</p>
+            </section>
+        </section>
+    `;
+}
 
 function helpPage() {
     const groups = state.faqCategory === "All"
@@ -721,15 +798,174 @@ function adminPage() {
     "Overview", "Menu", "Orders", "Blogs", "FAQs", "Café Info", "Raffles", "Reports"
     ];
 	let panel = "";
-	if (state.adminTab === "Overview") {
-		const bars = [6200, 7100, 5800, 8450, 9300, 11200, 8700];
-		panel = `<div class="stat-grid"><div class="stat-card"><span>Today's revenue</span><strong>R8,450</strong><small>↑ 8.2% this week</small></div><div class="stat-card"><span>Orders today</span><strong>47</strong><small>Across all channels</small></div><div class="stat-card"><span>Active customers</span><strong>234</strong><small>Returning this month</small></div><div class="stat-card"><span>Week growth</span><strong>+12%</strong><small>Compared with last week</small></div></div><section class="admin-panel"><h2>Revenue this week <small>Sample dashboard data</small></h2><div class="bar-chart">${bars.map((value, index) => `<div><span style="--bar-height:${Math.round(value / 11200 * 100)}%" title="R${value.toLocaleString()}"></span><small>${["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][index]}</small></div>`).join("")}</div></section><section class="admin-panel"><h2>Recent orders</h2>${ordersTable()}</section>`;
-	}
-    else if (state.adminTab === "Orders") {
+	
+if (state.adminTab === "Overview") {
+    const allOrders = adminOrders || [];
+    const now = new Date();
+
+    const startOfToday = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate()
+    );
+
+    const startOfMonth = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        1
+    );
+
+    const startOfWeek = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate() - 6
+    );
+
+    const startOfPreviousWeek = new Date(
+        startOfWeek.getFullYear(),
+        startOfWeek.getMonth(),
+        startOfWeek.getDate() - 7
+    );
+
+    const getDate = (order) => new Date(order.createdAt);
+
+    const todaysOrders = allOrders.filter(order =>
+        getDate(order) >= startOfToday
+    );
+
+    const thisWeekOrders = allOrders.filter(order =>
+        getDate(order) >= startOfWeek
+    );
+
+    const previousWeekOrders = allOrders.filter(order => {
+        const date = getDate(order);
+        return date >= startOfPreviousWeek && date < startOfWeek;
+    });
+
+    const monthlyCustomers = new Set(
+        allOrders
+            .filter(order => getDate(order) >= startOfMonth)
+            .map(order => order.customer)
+            .filter(customer => customer && customer !== "Guest")
+    );
+
+    const todayValue = todaysOrders.reduce(
+        (sum, order) => sum + order.total, 0
+    );
+
+    const thisWeekValue = thisWeekOrders.reduce(
+        (sum, order) => sum + order.total, 0
+    );
+
+    const previousWeekValue = previousWeekOrders.reduce(
+        (sum, order) => sum + order.total, 0
+    );
+
+    let weekGrowth = "No previous-week baseline";
+
+    if (previousWeekValue > 0) {
+        const percentage =
+            ((thisWeekValue - previousWeekValue) / previousWeekValue) * 100;
+
+        weekGrowth = `${percentage >= 0 ? "+" : ""}${percentage.toFixed(1)}%`;
+    } else if (thisWeekValue === 0) {
+        weekGrowth = "No orders yet";
+    }
+
+    const dailyValues = [];
+
+    for (let i = 6; i >= 0; i--) {
+        const day = new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate() - i
+        );
+
+        const nextDay = new Date(day);
+        nextDay.setDate(nextDay.getDate() + 1);
+
+        const value = allOrders
+            .filter(order => {
+                const date = getDate(order);
+                return date >= day && date < nextDay;
+            })
+            .reduce((sum, order) => sum + order.total, 0);
+
+        dailyValues.push({
+            label: day.toLocaleDateString("en-ZA", { weekday: "short" }),
+            value
+        });
+    }
+
+    const maxDailyValue = Math.max(
+        ...dailyValues.map(day => day.value),
+        1
+    );
+
+    panel = `
+        <div class="stat-grid">
+            <div class="stat-card">
+                <span>Today's order value</span>
+                <strong>${money(todayValue)}</strong>
+                <small>Based on orders placed today</small>
+            </div>
+
+            <div class="stat-card">
+                <span>Orders today</span>
+                <strong>${todaysOrders.length}</strong>
+                <small>Orders recorded in Supabase</small>
+            </div>
+
+            <div class="stat-card">
+                <span>Identified customers this month</span>
+                <strong>${monthlyCustomers.size}</strong>
+                <small>Unique customer email addresses</small>
+            </div>
+
+            <div class="stat-card">
+                <span>Week-on-week order value</span>
+                <strong>${weekGrowth}</strong>
+                <small>Compared with the previous seven days</small>
+            </div>
+        </div>
+
+        <section class="admin-panel">
+            <h2>Order value over the last seven days</h2>
+
+            <div class="bar-chart">
+                ${dailyValues.map(day => `
+                    <div>
+                        <span
+                            style="--bar-height:${Math.round(day.value / maxDailyValue * 100)}%"
+                            title="${money(day.value)}"
+                        ></span>
+                        <small>${day.label}</small>
+                    </div>
+                `).join("")}
+            </div>
+        </section>
+
+        <section class="admin-panel">
+            <h2>Recent orders</h2>
+            ${ordersLoading
+                ? "<p>Loading orders...</p>"
+                : ordersError
+                    ? `<p>${esc(ordersError)}</p>`
+                    : ordersTable()
+            }
+        </section>
+    `;
+}
+else if (state.adminTab === "Orders") {
     panel = `
         <section class="admin-panel">
             <h2>Recent orders <small>Live Supabase data</small></h2>
-            ${ordersTable()}
+            ${ordersLoading
+                ? "<p>Loading orders...</p>"
+                : ordersError
+                    ? `<p>${esc(ordersError)}</p>`
+                    : ordersTable()
+            }
         </section>
     `;
 }
@@ -743,6 +979,7 @@ function adminPage() {
         : "Overview figures and other admin sections still contain sample data."}
         </p></section>`;
         }
+        
 
 function ordersTable() {
     if (ordersLoading) {
@@ -769,7 +1006,7 @@ function ordersTable() {
                 <thead>
                     <tr>
                         <th>Order</th>
-                        <th>Customer email</th>
+                        <th>Customer</th>
                         <th>Items</th>
                         <th>Total</th>
                         <th>Status</th>
@@ -804,8 +1041,14 @@ function dataTable(title, headers, rows) {
 function cartPanel() {
 	const count = state.cart.reduce((sum, item) => sum + item.quantity, 0);
 	const subtotal = state.cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-	const tax = subtotal * 0.15;
-	return `<div class="drawer-backdrop" data-action="cart-close"></div><aside class="cart-drawer" aria-label="Your order"><header><div><h2>Your order</h2><p>${count} ${count === 1 ? "item" : "items"} in cart</p></div><button class="icon-button" data-action="cart-close" aria-label="Close cart">×</button></header><div class="cart-items">${state.cart.length ? state.cart.map((item) => `<article class="cart-item"><span class="cart-emoji">${item.image}</span><div class="cart-item-info"><div class="cart-item-title"><strong>${esc(item.name)}</strong><button data-action="remove-cart" data-id="${item.id}" aria-label="Remove ${esc(item.name)}">×</button></div><small>${money(item.price)} each</small><div class="cart-item-bottom"><div class="quantity-control"><button data-action="quantity" data-id="${item.id}" data-change="-1" aria-label="Decrease quantity">−</button><span>${item.quantity}</span><button data-action="quantity" data-id="${item.id}" data-change="1" aria-label="Increase quantity">+</button></div><strong>${money(item.price * item.quantity)}</strong></div></div></article>`).join("") : `<div class="empty-cart"><span>♧</span><h3>Your cart is empty</h3><p>Add something delicious from the menu and it will appear here.</p><a href="#/menu" class="primary-button" data-action="cart-close">Browse menu</a></div>`}</div>${state.cart.length ? `<footer class="cart-summary"><div><span>Subtotal</span><strong>${money(subtotal)}</strong></div><div><span>VAT (15%)</span><strong>${money(tax)}</strong></div><div class="cart-total"><b>Total</b><strong>${money(subtotal + tax)}</strong></div><button class="primary-button full-width" data-action="checkout">♧ Proceed to checkout</button><small>Your order will be submitted. Payment is not processed online.</small></footer>` : ""}</aside>`;
+    const tax = subtotal * 0.15;
+    const total = subtotal + tax;
+	return `<div class="drawer-backdrop" data-action="cart-close"></div><aside class="cart-drawer" aria-label="Your order"><header><div>
+    <h2>Your order</h2><p>${count} ${count === 1 ? "item" : "items"} in cart</p></div>
+    <button class="icon-button" data-action="cart-close" aria-label="Close cart">×</button></header
+    ><div class="cart-items">${state.cart.length ? state.cart.map((item) => `<article class="cart-item"><span class="cart-emoji">${item.image}</span><div class="cart-item-info"><div class="cart-item-title"><strong>${esc(item.name)}</strong><button data-action="remove-cart" data-id="${item.id}" aria-label="Remove ${esc(item.name)}">×</button></div><small>${money(item.price)} each</small><div class="cart-item-bottom"><div class="quantity-control"><button data-action="quantity" data-id="${item.id}" data-change="-1" aria-label="Decrease quantity">−</button><span>${item.quantity}</span><button data-action="quantity" data-id="${item.id}" data-change="1" aria-label="Increase quantity">+</button></div>
+    <strong>${money(item.price * item.quantity)}</strong></div></div></article>`).join("") : `<div class="empty-cart"><span>♧</span><h3>Your cart is empty</h3><p>Add something delicious from the menu and it will appear here.</p><a href="#/menu" class="primary-button" data-action="cart-close">Browse menu</a></div>`}</div>${state.cart.length ? `<footer class="cart-summary"><div><span>Subtotal</span><strong>${money(total)}</strong></div><div><span>VAT included (15%)</span><strong>${money(tax)}</strong></div><div class="cart-total"><b>Total</b><strong>${money(subtotal)}</strong><button class="primary-button full-width" data-action="checkout">♧ Proceed to checkout</button>
+    <small>Your order will be submitted. Payment is not processed online.</small></footer>` : ""}</aside>`;
 }
 
 function articleDialog() {
@@ -823,7 +1066,7 @@ function render() {
     }
 
     let current = route();
-
+    applySettings();
     if (current === "admin") {
     if (!signedIn() || state.guestMode) {
         location.hash = "#/login";
@@ -861,7 +1104,9 @@ function render() {
         blog: blogPage,
         raffle: rafflePage,
         admin: adminPage,
-        help: helpPage
+        help: helpPage,
+        settings: settingsPage
+
     };
 
     if (current === "login") {
@@ -877,7 +1122,8 @@ function render() {
         blog: "Blog",
         raffle: "Raffles",
         admin: "Admin",
-        help: "Help"
+        help: "Help",
+        settings: "Settings"
     };
 
     document.title = `${titles[current] || "Home"} | Happy Hippo Café`;
@@ -908,7 +1154,17 @@ async function signIn(email, password) {
     state.notice = "";
     location.hash = "#/";
 }
+function applySettings() {
+    document.documentElement.classList.toggle(
+        "dark-mode",
+        state.settings.darkMode
+    );
 
+    document.documentElement.classList.toggle(
+        "large-text",
+        state.settings.largeText
+    );
+}
 
 async function createAccount() {
     const email = app.querySelector("#email")?.value.trim() || "";
@@ -986,7 +1242,7 @@ app.addEventListener("click", (event) => {
     return;
 }
 	// changed - if (action === "guest") signIn("Guest");
-
+    
 	if (action === "guest") {
 		state.guestMode = true;
 		state.user = null;
@@ -1077,7 +1333,20 @@ app.addEventListener("click", (event) => {
 }
 	else if (action === "close-article") { if (event.target === target || target.classList.contains("modal-close")) { state.articleId = null; render(); } }
 	else if (action === "mobile-nav") { state.mobileNav = !state.mobileNav; render(); }
+    else if (action === "toggle-setting") {
+    const setting = target.dataset.setting;
+
+    if (Object.prototype.hasOwnProperty.call(state.settings, setting)) {
+        state.settings[setting] = !state.settings[setting];
+
+        saveStore("hh_settings", state.settings);
+
+        applySettings();
+        render();
+    }
+}
 	else if (action === "demo-action") toast(target.dataset.message);
+    
 });
 
 window.addEventListener("hashchange", () => {
@@ -1104,6 +1373,7 @@ window.hhSupabase.auth.onAuthStateChange(
             await refreshAdminRole(state.user);
             await loadWebsiteContent();
 
+            
             state.authReady = true;
             render();
         }, 0);

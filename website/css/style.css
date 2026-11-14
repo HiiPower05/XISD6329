@@ -547,3 +547,190 @@ td:first-child { font-weight: 700; white-space: nowrap; }
         flex-direction: column;
     }
 }
+
+/* SETTINGS PAGE */
+.settings-page {
+    max-width: 900px;
+}
+
+.settings-page .page-heading {
+    margin-bottom: 30px;
+}
+
+.settings-card {
+    margin-bottom: 20px;
+    padding: 25px;
+    border: 1px solid var(--line);
+    background: var(--paper);
+}
+
+.settings-card h2 {
+    margin: 0 0 12px;
+    font-family: "Playfair Display", Georgia, serif;
+    font-size: 22px;
+}
+
+.settings-card > p {
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.settings-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 17px 0;
+    border-bottom: 1px solid var(--line);
+}
+
+.settings-row:last-child {
+    border-bottom: 0;
+}
+
+.settings-info strong {
+    font-size: 14px;
+}
+
+.settings-info p {
+    margin: 4px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.settings-toggle {
+    min-width: 65px;
+    padding: 8px 14px;
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    background: var(--sand);
+    color: var(--coffee);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.settings-toggle[aria-pressed="true"] {
+    border-color: var(--green);
+    background: var(--green);
+    color: white;
+}
+
+.settings-toggle:hover {
+    filter: brightness(.95);
+}
+
+/* DARK MODE */
+html.dark-mode {
+    color-scheme: dark;
+    --espresso: #f5e9d8;
+    --roast: #e8d0b5;
+    --coffee: #a96b3e;
+    --clay: #e69a61;
+    --muted: #c0aa92;
+    --cream: #211a15;
+    --paper: #30251d;
+    --sand: #443326;
+    --line: rgba(245, 233, 216, .16);
+    --green: #397a56;
+}
+
+html.dark-mode body,
+html.dark-mode .site-shell {
+    background: var(--cream);
+    color: var(--espresso);
+}
+
+html.dark-mode .site-header,
+html.dark-mode .mobile-nav {
+    border-color: var(--line);
+    background: var(--paper);
+}
+
+html.dark-mode .product-card,
+html.dark-mode .blog-card,
+html.dark-mode .raffle-card,
+html.dark-mode .admin-panel,
+html.dark-mode .stat-card,
+html.dark-mode .report-card,
+html.dark-mode .settings-card,
+html.dark-mode .faq-item,
+html.dark-mode .article-modal {
+    border-color: var(--line);
+    background: var(--paper);
+    color: var(--espresso);
+}
+
+html.dark-mode .search-field,
+html.dark-mode .filter-chip,
+html.dark-mode .secondary-button,
+html.dark-mode .cart-item,
+html.dark-mode .faq-item summary {
+    border-color: var(--line);
+    background: var(--paper);
+    color: var(--espresso);
+}
+
+html.dark-mode .search-field input,
+html.dark-mode .cart-drawer,
+html.dark-mode .article-modal {
+    background: var(--paper);
+    color: var(--espresso);
+}
+
+html.dark-mode .cart-drawer > header {
+    background: #493020;
+}
+
+html.dark-mode .cart-summary {
+    border-color: var(--line);
+}
+
+html.dark-mode th,
+html.dark-mode .admin-tab.selected,
+html.dark-mode .how-it-works {
+    background: var(--sand);
+    color: var(--espresso);
+}
+
+html.dark-mode td {
+    border-color: var(--line);
+}
+
+html.dark-mode .content-editor input,
+html.dark-mode .content-editor textarea,
+html.dark-mode .content-editor select {
+    border-color: var(--line);
+    background: var(--paper);
+    color: var(--espresso);
+}
+
+/* LARGER TEXT */
+html.large-text body {
+    font-size: 17px;
+}
+
+html.large-text .site-shell main p,
+html.large-text .site-shell main a,
+html.large-text .site-shell main button,
+html.large-text .site-shell main label,
+html.large-text .site-shell main input,
+html.large-text .site-shell main small,
+html.large-text .site-shell main li,
+html.large-text .site-shell main td,
+html.large-text .site-shell main th {
+    font-size: 1.1em;
+}
+
+@media (max-width: 520px) {
+    .settings-card {
+        padding: 18px;
+    }
+
+    .settings-row {
+        gap: 12px;
+    }
+
+    .settings-info p {
+        max-width: 230px;
+    }
+}
