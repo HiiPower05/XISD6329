@@ -184,28 +184,117 @@ The following technologies and tools were used during the development of the Hap
 | Vite | Provides the development server and production build tooling. |
 | React | Supports a separate frontend implementation retained in the `src` directory. |
 
-## Run the web app
 
-The primary web application is the vanilla JavaScript website.
+## Running the Web Application
 
-1. Clone the repository.
-2. Install the project dependencies using `npm install`.
-3. Start the development server using `npm run dev`.
-4. Open the local URL displayed by Vite.
+The primary website is built using vanilla JavaScript, with Vite used as the development server and build tool.
 
-The website uses hash-based navigation and supports the Home, Menu, Blog, Raffle, Admin, and Help sections.
+### Requirements
 
-Supabase provides the authentication backend. Users can register, sign in with an email and password, and sign out. Authentication session changes are handled through Supabase's authentication state listener.
+Before running the application, ensure the following are installed and configured:
 
-The website also includes menu browsing, search and filters, a shopping cart, and order-related functionality. Database operations and checkout functionality depend on the configured Supabase project and its database functions.
+- Node.js
+- npm
+- A Supabase project with the required database configuration
+
+### Installation and Setup
+
+1. Clone the repository from GitHub.
+2. Open the project directory in a terminal.
+3. Install the required dependencies:
+
+   ```bash
+   npm install
+   ```
+
+4. Start the development server:
+
+   ```bash
+   npm run dev
+   ```
+
+5. Open the local URL provided by Vite in a web browser.
+
+The application relies on the configured Supabase project for authentication and database functionality.
+
+### Building the Website
+
+To generate a production build, run:
+
+```bash
+npm run build
+```
+
+The generated production files are placed in the `dist` directory.
+
+---
+
+## 11. Android Application
+
+The Android application uses Capacitor to package the existing web application for Android devices.
+
+The Capacitor configuration uses the following application details:
+
+| Setting | Value |
+|---|---|
+| Application ID | `za.co.happyhippocafe.app` |
+| Application Name | `Happy Hippo Cafe` |
+| Web Directory | `../dist` |
+
+### Synchronising the Android Application
+
+After making changes to the website, generate an updated production build:
+
+```bash
+npm run build
+```
+
+Navigate to the mobile application directory and synchronise the updated web files with the Android project:
+
+```bash
+cd mobile-app
+npx cap sync android
+```
+
+### Opening in Android Studio
+
+To open the Android project in Android Studio, run:
+
+```bash
+npx cap open android
+```
+
+The Android project is maintained inside the `mobile-app` directory. Android-specific source code and configuration are managed separately from the main web application.
+
+Capacitor allows the Android application to reuse the website's existing functionality while providing an installable mobile application.
+
 
 ## Frontend files
 
-### Primary website
-- `index.html`: Main website entry point.
-- `website/css/style.css`: Website layout and responsive styling.
-- `website/js/script.js`: Screen rendering, navigation, interactions, authentication, and order-related logic.
-- `website/js/supabase-client.js`: Supabase client initialization.
+XISD6329/
+│
+├── assets/
+│   └── Shared branding and graphic assets
+│
+├── docs/
+│   └── Planning documents, wireframes and reports
+│
+├── mobile-app/
+│   └── Capacitor and Android application
+│
+├── website/
+│   ├── css/
+│   ├── js/
+│   └── media/
+│
+├── src/
+│   └── Additional React implementation
+│
+├── public/
+│
+├── index.html
+├── package.json
+└── README.md
 
 ### Additional frontend implementation
 - `src/`: Separate React implementation retained in the repository. It is not loaded by the root `index.html` and is not the primary website entry point.
@@ -269,6 +358,75 @@ The website also includes menu browsing, search and filters, a shopping cart, an
 
 <img width="1438" height="981" alt="Screenshot 2026-11-15 153553" src="https://github.com/user-attachments/assets/0bd875b1-d24f-48d2-b3eb-ba66cc3cef88" />
 
+
+## 13. Release Notes
+
+The following release notes describe the development of the Happy Hippo Café application, from its initial prototype to the current development version.
+
+### Current Development Version
+
+**Happy Hippo Café – Updated Application**
+
+The following functionality and improvements were introduced or developed beyond the initial prototype:
+
+| Area | Updates |
+|---|---|
+| Website functionality | Developed interactive website sections and navigation. |
+| Authentication | Integrated Supabase registration, login and logout functionality. |
+| Database integration | Connected application functionality to the hosted Supabase database. |
+| Menu | Implemented database-driven menu retrieval, categories, searching and filtering. |
+| Shopping cart | Added shopping cart functionality and quantity management. |
+| Guest checkout | Enabled customers to submit orders without registering for an account. |
+| Order processing | Implemented the `create_guest_order` PostgreSQL function to create orders and associated order items. |
+| VAT calculation | Implemented VAT calculation within the guest order processing function. |
+| Administration | Developed administrative sections for managing café information and orders. |
+| Admin overview | Added statistics and information derived from application data. |
+| Additional content | Developed blog, FAQ and raffle functionality. |
+| API testing | Used Postman to test API requests and database communication. |
+| Android integration | Integrated the website into an Android application using Capacitor. |
+| Build process | Configured production builds using Vite and Android synchronisation through Capacitor. |
+| Automated workflows | Configured GitHub Actions for automated workflow execution and testing. |
+
+### Key Features Introduced
+
+The main additions that extend the original prototype include:
+
+1. **Guest Checkout:** Customers can submit orders without creating an account or signing in.
+2. **Database-Driven Menu:** Menu information is retrieved from Supabase rather than relying entirely on hardcoded content.
+3. **Automated Order Creation:** A PostgreSQL function validates submitted order information and creates orders with their associated items.
+4. **VAT Calculation:** The guest checkout database function calculates the order total, including VAT.
+5. **Android Integration:** The existing website can also be accessed as an Android application through Capacitor.
+6. **Administrative Overview:** Administrators can view statistics and information derived from application data.
+
+---
+
+## 14. Known Limitations and Publication Preparation
+
+The project was developed as an academic web and mobile application.
+
+Although the Android application can be built using Capacitor, publication on the Google Play Store requires additional preparation and a registered Google Play Console developer account.
+
+The remaining release preparation steps include:
+
+- Generating a signed release APK or Android App Bundle (AAB).
+- Testing the release application on Android devices.
+- Capturing application screenshots.
+- Preparing the application listing and distribution information.
+- Completing the Google Play Console publication process.
+
+Public Google Play Store publication is not claimed as completed as part of this project.
+
+---
+
+## 15. Conclusion
+
+Happy Hippo Café combines a customer-facing website, backend database functionality and an Android application into a single project.
+
+The development process involved integrating technologies such as Supabase, PostgreSQL, Postman, Vite and Capacitor. GitHub was used for source code management and collaboration, while GitHub Actions supported automated workflow execution.
+
+The application extends the original prototype with additional functionality, including database-driven menu content, guest checkout, automated order creation, administrative tools and Android integration.
+
+Overall, the project demonstrates the development of an interactive web and mobile application that goes beyond displaying static information by allowing customers to interact with the café platform and perform meaningful operations.
 
 
 
