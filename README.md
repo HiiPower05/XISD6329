@@ -1,7 +1,15 @@
 # XISD6329 - Web & Mobile Application Project
 
+Project: Happy Hippo Café
+
 ## Project Overview
-This repository contains the source code and documentation for the XISD6329 web and mobile application project. The solution combines a responsive web platform with a cross-platform mobile application.
+Happy Hippo Café is a web and mobile application developed to provide customers with a convenient way to interact with the café. The application brings together several functions, including browsing the menu, viewing café information, managing a shopping cart, placing orders, and accessing additional content such as blogs and raffles.
+
+The project also includes administrative functionality that allows authorised users to manage and view information related to the café, including orders and menu content.
+
+The main purpose of the project is to create a functional digital platform that improves how customers interact with the café while providing administrative tools to support its operations.
+
+The solution consists of a responsive website and an Android application. The website uses HTML, CSS and JavaScript, while Capacitor is used to integrate the web application into an Android project.
 
 ## Repository Structure
 - `/assets`: Shared branding icons and global graphic assets.
@@ -10,17 +18,211 @@ This repository contains the source code and documentation for the XISD6329 web 
 - `/website`: Website component including CSS, JavaScript, media, and secondary pages.
 - `index.html`: Main landing page for the web application.
 
-## Youtube Video of Application
+## Youtube Video of Application Demonstration
 https://youtu.be/Wfi2iJAvAio
+
+## Purpose and Objectives
+The application was developed with the following objectives:
+
+Provide customers with an accessible digital menu.
+
+Allow customers to browse products and view relevant information.
+
+Provide shopping cart and checkout functionality.
+
+Allow customers to register, sign in and manage their accounts.
+
+Store customer and order information using an online database.
+
+Provide administrative functionality for managing café information and orders.
+
+Make the application accessible through both a website and an Android application.
+
+The intention was to create something more useful than a static café website. Customers should be able to interact with the application and perform actions rather than simply read information.
+
+## Main Features
+
+Customer functionality
+
+Menu browsing
+
+View available menu items.
+
+Browse menu categories.
+
+Search for products.
+
+Filter menu items.
+
+Shopping cart and ordering
+
+Add products to the shopping cart.
+
+Adjust item quantities.
+
+Review the cart before checkout.
+
+Submit orders through the Supabase backend.
+
+Support guest checkout without requiring a registered account.
+
+User authentication
+
+Register an account.
+
+Sign in using email and password.
+
+Sign out.
+
+Maintain authentication sessions through Supabase.
+
+Additional content
+
+Browse café blog content.
+
+Access raffle functionality.
+
+View help and frequently asked questions.
+
+Access café information.
+
+Administrative functionality
+
+The application also includes an administrative section with functionality for viewing and managing different parts of the café platform.
+
+This includes:
+
+Overview and order information.
+
+Menu management.
+
+Order management.
+
+Blog management.
+
+FAQ management.
+
+Café information.
+
+Raffle management.
+
+Reports and statistics.
+
+## Innovative Features added
+Guest checkout through a database function
+
+One of the important additions is the ability to submit an order without requiring the customer to register or sign in.
+
+This functionality uses a PostgreSQL function called create_guest_order in Supabase. The function accepts customer and order information, validates the submitted items, checks product availability and prices, calculates the order total including VAT, and creates the order and its associated order items.
+
+This allows customers to place orders without first creating an account.
+
+Database-driven menu
+
+The menu retrieves information from the Supabase database instead of relying entirely on hardcoded product information.
+
+This allows menu information to be managed through the backend and retrieved by the website through API requests.
+
+Integrated web and Android application
+
+Capacitor allows the existing web application to be packaged as an Android application. This means the project can provide a mobile application without having to recreate the entire website using a separate native Android interface.
+
+Administrative order management
+
+The administrative functionality provides a way to view customer orders and manage information associated with the café.
+
+Dynamic administrative information
+
+The administrative overview includes statistics and information derived from application data, allowing the administrator to see more than just static placeholder content.
+
+# Design Consideraations
+The application uses a café-inspired visual design intended to create a comfortable and consistent experience.
+
+Colour scheme and typography
+
+The design uses a warm, cream-based colour palette, including the background colour #fbf5ed.
+
+The typography combines:
+
+Playfair for a more distinctive editorial style.
+
+DM Mono and sans-serif typography for supporting information and interface elements.
+
+The intention was to create a design that feels appropriate for a café rather than a generic business management application.
+
+Usability and navigation
+
+The application separates functionality into different sections so that users can find the features they need.
+
+The customer-facing sections focus on browsing, ordering and accessing café information. Administrative functionality is separated into its own area.
+
+The interface also considers responsive layouts so that the website can be used on different screen sizes.
+
+Consistency
+
+The web and mobile versions share the same general visual identity and application functionality. Capacitor allows the mobile application to use the existing web interface.
+
+Functional design
+
+The application was developed with the intention that buttons and interface elements should perform meaningful actions. This includes retrieving information from the database, updating the cart and submitting orders.
 
 
 ## Technologies Used
-- **HTML5 & CSS3:** Website structure, responsive layout, and styling.
-- **JavaScript:** Website navigation, user interactions, and application logic.
-- **Supabase:** Backend services, including user authentication and database operations.
-- **React & Vite:** Separate frontend implementation retained in the `src` directory.
-- **Capacitor:** Mobile application integration.
-- **Git & GitHub:** Version control and collaboration.
+Technology
+
+Purpose
+
+HTML5
+
+Website structure
+
+CSS3
+
+Styling, layout and responsive design
+
+JavaScript
+
+Application functionality and interactions
+
+Supabase
+
+Hosted database and authentication
+
+PostgreSQL
+
+Database queries, functions and data management
+
+Postman
+
+Testing API requests
+
+Capacitor
+
+Integrating the website into an Android application
+
+Kotlin
+
+Android application source code
+
+Git
+
+Version control
+
+GitHub
+
+Source code hosting and collaboration
+
+GitHub Actions
+
+Automated workflow execution
+
+Vite
+
+Development server and production build tooling
+
+React
+
+Separate frontend implementation retained in the src directory
 
 ## Run the web app
 
