@@ -79,6 +79,34 @@ The website also includes menu browsing, search and filters, a shopping cart, an
 - Admin Reference of Order
 <img width="857" height="392" alt="image" src="https://github.com/user-attachments/assets/79ca6a00-9e8d-426c-86b2-38e6b6103dcc" />
 
+<img width="1678" height="852" alt="Screenshot 2026-11-16 155407" src="https://github.com/user-attachments/assets/f8b18208-3d4f-4b94-8f68-9f295668b9dc" />
+
+<img width="1665" height="840" alt="Screenshot 2026-11-16 155557" src="https://github.com/user-attachments/assets/b53eff88-6ee3-4ed5-97d1-9bbd832f949b" />
+
+<img width="1661" height="842" alt="Screenshot 2026-11-16 155641" src="https://github.com/user-attachments/assets/47fd941a-5711-4729-9c97-964ec956c21a" />
+
+
+
+-  Querying database with SELECT for the menu
+<img width="1917" height="866" alt="Screenshot 2026-11-15 143523" src="https://github.com/user-attachments/assets/62031132-4e5f-44d2-bfe0-995963890de7" />
+
+- Postman GET of the menu_items from the Supabase database request. 200 OK.
+<img width="1442" height="937" alt="Screenshot 2026-11-15 144449" src="https://github.com/user-attachments/assets/3e73ab74-eb87-4d79-b844-0e5a7786fa38" />
+
+- Postman POST request of create_guest_order request with successful result.
+<img width="1445" height="973" alt="Screenshot 2026-11-15 153823" src="https://github.com/user-attachments/assets/d36572a4-0609-445c-a47d-3917a1d57fa7" />
+
+- SQL definition of create_guest_order.
+<img width="1917" height="870" alt="Screenshot 2026-11-15 144711" src="https://github.com/user-attachments/assets/7621d518-42b8-4a18-92ed-d94595ad09f2" />
+
+- check if create_guest_order exists.
+<img width="1917" height="867" alt="Screenshot 2026-11-15 143539" src="https://github.com/user-attachments/assets/459fb207-d61f-4029-8f96-fe77f934b03b" />
+
+-  RPC execution permissions.
+<img width="1917" height="870" alt="Screenshot 2026-11-15 144711" src="https://github.com/user-attachments/assets/79854b73-31de-4e19-aef9-e0149bae993d" />
+
+<img width="1438" height="981" alt="Screenshot 2026-11-15 153553" src="https://github.com/user-attachments/assets/0bd875b1-d24f-48d2-b3eb-ba66cc3cef88" />
+
 
 
 
