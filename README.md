@@ -22,23 +22,16 @@ The solution consists of a responsive website and an Android application. The we
 https://youtu.be/Wfi2iJAvAio
 
 ## Purpose and Objectives
-The application was developed with the following objectives:
+The Happy Hippo Café application was developed to provide customers with an accessible and interactive digital café experience.
 
-Provide customers with an accessible digital menu.
-
-Allow customers to browse products and view relevant information.
-
-Provide shopping cart and checkout functionality.
-
-Allow customers to register, sign in and manage their accounts.
-
-Store customer and order information using an online database.
-
-Provide administrative functionality for managing café information and orders.
-
-Make the application accessible through both a website and an Android application.
-
-The intention was to create something more useful than a static café website. Customers should be able to interact with the application and perform actions rather than simply read information.
+The main objectives of the application are to:
+- Digital Menu: Provide customers with an accessible digital menu to browse café products and view relevant information.
+- Shopping Cart and Checkout: Allow customers to add products to their cart, manage quantities, and proceed to checkout.
+- User Authentication: Enable customers to register, sign in, and manage their accounts.
+- Database Integration: Store and retrieve customer and order information using an online database.
+- Administrative Functionality: Provide administrators with tools to manage café information, products, orders, and other application content.
+- Cross-Platform Accessibility: Make the application accessible through both a web application and an Android application.
+The overall goal was to develop a functional application that goes beyond a static café website. Instead of simply displaying information, the application allows customers to interact with its features, manage their shopping experience, and perform relevant actions. It also provides administrative functionality to support the management of café operations.
 
 ## Main Features
 
