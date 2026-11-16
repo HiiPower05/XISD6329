@@ -35,187 +35,154 @@ The overall goal was to develop a functional application that goes beyond a stat
 
 ## Main Features
 
-Customer functionality
+The Happy Hippo Café application provides a range of customer-facing and administrative features designed to support the café's digital operations.
 
-Menu browsing
+### 1. Customer Functionality
 
-View available menu items.
+**Menu Browsing**
+- View available menu items.
+- Browse products by category.
+- Search for specific products.
+- Filter menu items.
 
-Browse menu categories.
+**Shopping Cart and Ordering**
+- Add products to the shopping cart.
+- Adjust item quantities.
+- Review cart contents before checkout.
+- Submit orders through the Supabase backend.
+- Complete guest checkout without requiring a registered account.
 
-Search for products.
+**User Authentication**
+- Register a new account.
+- Sign in using an email address and password.
+- Sign out securely.
+- Maintain authentication sessions through Supabase.
 
-Filter menu items.
+**Additional Content and Features**
+- Browse café blog articles and content.
+- Access raffle functionality.
+- View help information and frequently asked questions (FAQs).
+- Access general café information.
 
-Shopping cart and ordering
+### 2. Administrative Functionality
 
-Add products to the shopping cart.
+The application includes a dedicated administrative section that allows authorised administrators to view and manage different aspects of the café platform.
 
-Adjust item quantities.
+The administrative features include:
 
-Review the cart before checkout.
+- **Overview:** View general application information and order summaries.
+- **Menu Management:** Manage café menu items and products.
+- **Order Management:** View and manage customer orders.
+- **Blog Management:** Manage blog articles and content.
+- **FAQ Management:** Manage frequently asked questions and answers.
+- **Café Information:** Update information about the café.
+- **Raffle Management:** Manage raffle-related information and entries.
+- **Reports and Statistics:** View information and statistics relating to café operations.
 
-Submit orders through the Supabase backend.
+These features provide customers with the functionality needed to interact with the café while giving administrators a centralised area for managing the platform.
 
-Support guest checkout without requiring a registered account.
+## Innovative Features Added
 
-User authentication
+The application includes several features that extend its functionality beyond a basic café website.
 
-Register an account.
+### 1. Guest Checkout Through a Database Function
 
-Sign in using email and password.
+One of the key additions is the ability for customers to submit orders without registering or signing in.
 
-Sign out.
+This functionality uses a PostgreSQL database function called `create_guest_order`, hosted through Supabase. The function:
 
-Maintain authentication sessions through Supabase.
+- Accepts customer details and order information.
+- Validates submitted order items.
+- Checks product availability and pricing.
+- Calculates the order total, including VAT.
+- Creates the order and its associated order items in the database.
 
-Additional content
+This provides customers with a more convenient ordering experience by removing the requirement to create an account before placing an order.
 
-Browse café blog content.
+### 2. Database-Driven Menu
 
-Access raffle functionality.
+The menu retrieves product information from the Supabase database rather than relying entirely on hardcoded information.
 
-View help and frequently asked questions.
+This allows menu information to be managed through the backend and retrieved by the website through API requests. It also provides a foundation for administrators to maintain menu information without having to modify the application's frontend code.
 
-Access café information.
+### 3. Integrated Web and Android Application
 
-Administrative functionality
+Capacitor was used to package the existing web application as an Android application.
 
-The application also includes an administrative section with functionality for viewing and managing different parts of the café platform.
+This approach allows the project to provide a mobile application while reusing the existing website's interface and functionality, rather than recreating the entire application using a separate native Android interface.
 
-This includes:
+### 4. Administrative Order Management
 
-Overview and order information.
+The administrative section provides functionality for viewing customer orders and managing information associated with the café.
 
-Menu management.
+This gives administrators a centralised area to oversee important aspects of the platform rather than relying exclusively on the customer-facing interface.
 
-Order management.
+### 5. Dynamic Administrative Information
 
-Blog management.
+The administrative overview includes statistics and information derived from application data.
 
-FAQ management.
+This provides administrators with a more useful overview of café operations, allowing them to view information such as order summaries and other relevant statistics instead of relying entirely on static placeholder content.
 
-Café information.
+---
 
-Raffle management.
+## Design Considerations
 
-Reports and statistics.
+The application uses a café-inspired visual design intended to create a comfortable, accessible, and consistent user experience.
 
-## Innovative Features added
-Guest checkout through a database function
+### 1. Colour Scheme and Typography
 
-One of the important additions is the ability to submit an order without requiring the customer to register or sign in.
-
-This functionality uses a PostgreSQL function called create_guest_order in Supabase. The function accepts customer and order information, validates the submitted items, checks product availability and prices, calculates the order total including VAT, and creates the order and its associated order items.
-
-This allows customers to place orders without first creating an account.
-
-Database-driven menu
-
-The menu retrieves information from the Supabase database instead of relying entirely on hardcoded product information.
-
-This allows menu information to be managed through the backend and retrieved by the website through API requests.
-
-Integrated web and Android application
-
-Capacitor allows the existing web application to be packaged as an Android application. This means the project can provide a mobile application without having to recreate the entire website using a separate native Android interface.
-
-Administrative order management
-
-The administrative functionality provides a way to view customer orders and manage information associated with the café.
-
-Dynamic administrative information
-
-The administrative overview includes statistics and information derived from application data, allowing the administrator to see more than just static placeholder content.
-
-# Design Consideraations
-The application uses a café-inspired visual design intended to create a comfortable and consistent experience.
-
-Colour scheme and typography
-
-The design uses a warm, cream-based colour palette, including the background colour #fbf5ed.
+The design uses a warm, cream-based colour palette, including the background colour `#fbf5ed`.
 
 The typography combines:
 
-Playfair for a more distinctive editorial style.
+- **Playfair:** Used to create a distinctive editorial style and reinforce the café's visual identity.
+- **DM Mono and Sans-serif:** Used for supporting information, navigation, and interface elements to maintain readability.
 
-DM Mono and sans-serif typography for supporting information and interface elements.
+The intention was to create an interface that feels appropriate for a café rather than resembling a generic business management application.
 
-The intention was to create a design that feels appropriate for a café rather than a generic business management application.
+### 2. Usability and Navigation
 
-Usability and navigation
+The application separates its functionality into different sections so that customers and administrators can easily find the features they need.
 
-The application separates functionality into different sections so that users can find the features they need.
+Customer-facing sections focus on browsing menu items, placing orders, and accessing café information. Administrative functionality is separated into its own section to distinguish management tasks from the customer experience.
 
-The customer-facing sections focus on browsing, ordering and accessing café information. Administrative functionality is separated into its own area.
+The interface also considers responsive layouts, allowing the website to be accessed on different screen sizes.
 
-The interface also considers responsive layouts so that the website can be used on different screen sizes.
+### 3. Design Consistency
 
-Consistency
+The web and mobile versions share the same general visual identity and application functionality.
 
-The web and mobile versions share the same general visual identity and application functionality. Capacitor allows the mobile application to use the existing web interface.
+Capacitor allows the existing web interface to be reused within the Android application, helping maintain consistency between the two platforms and reducing the need to develop separate interfaces.
 
-Functional design
+### 4. Functional Design
 
-The application was developed with the intention that buttons and interface elements should perform meaningful actions. This includes retrieving information from the database, updating the cart and submitting orders.
+The application was developed with the intention that buttons and interface elements should perform meaningful actions rather than simply serve as visual elements.
 
+Examples include retrieving information from the database, updating shopping cart contents, submitting orders, and accessing administrative functionality.
+
+This approach helps make the application more interactive and practical for customers and administrators.
+
+---
 
 ## Technologies Used
-Technology
 
-Purpose
+The following technologies and tools were used during the development of the Happy Hippo Café application.
 
-HTML5
-
-Website structure
-
-CSS3
-
-Styling, layout and responsive design
-
-JavaScript
-
-Application functionality and interactions
-
-Supabase
-
-Hosted database and authentication
-
-PostgreSQL
-
-Database queries, functions and data management
-
-Postman
-
-Testing API requests
-
-Capacitor
-
-Integrating the website into an Android application
-
-Kotlin
-
-Android application source code
-
-Git
-
-Version control
-
-GitHub
-
-Source code hosting and collaboration
-
-GitHub Actions
-
-Automated workflow execution
-
-Vite
-
-Development server and production build tooling
-
-React
-
-Separate frontend implementation retained in the src directory
+| Technology | Purpose |
+|---|---|
+| HTML5 | Provides the structure and content of the website. |
+| CSS3 | Handles styling, layouts, and responsive design. |
+| JavaScript | Implements application functionality and user interactions. |
+| Supabase | Provides the hosted database and authentication services. |
+| PostgreSQL | Handles database queries, functions, and data management. |
+| Postman | Used to test API requests and responses. |
+| Capacitor | Packages the web application as an Android application. |
+| Kotlin | Used for the Android application source code and native Android integration. |
+| Git | Provides version control and tracks changes throughout development. |
+| GitHub | Hosts the source code and supports collaboration. |
+| GitHub Actions | Automates development workflows through configured actions. |
+| Vite | Provides the development server and production build tooling. |
+| React | Supports a separate frontend implementation retained in the `src` directory. |
 
 ## Run the web app
 
